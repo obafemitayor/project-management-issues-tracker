@@ -15,14 +15,18 @@ const axios = require('axios')
         httpResponse['status'] = 200
         httpResponse['data'] = response.data
     } catch (error) {
-        const statusCode = error.response.status
+        console.log('error is ' + JSON.stringify(error))
+        const statusCode = error.response ? error.response.status : 500
+
+        const errorMessageFromServer = error.response ? error.response.data : 'An Error Occurred, Please Try Again'
         
         const errorResponseMessages = getErrorResponses(resourceName)
 
-        httpResponse['status'] = error.response.status ? error.response.status : 500
+        const isExist = statusCode in errorResponseMessages
 
-        httpResponse['data'] = statusCode in errorResponseMessages ? errorResponseMessages[statusCode] :
-        error.response.data ? error.response.data : 'An Error Occurred, Please Try Again'
+        httpResponse['status'] = statusCode
+
+        httpResponse['data'] =  isExist ? errorResponseMessages[statusCode] : errorMessageFromServer 
     }
     return httpResponse
 }
